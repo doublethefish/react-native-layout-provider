@@ -43,9 +43,9 @@ describe('<LayoutProvider />', () => {
       ...defaultState,
       portrait: true,
     })
-    const { componentWillReceiveProps } = LayoutProvider.prototype
+    const { UNSAFE_componentWillReceiveProps } = LayoutProvider.prototype
     expect(
-      componentWillReceiveProps.calledOnce
+      UNSAFE_componentWillReceiveProps.calledOnce
     ).toBe(true)
   })
 

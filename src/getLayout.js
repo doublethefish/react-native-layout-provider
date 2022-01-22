@@ -22,7 +22,7 @@ export default function getLayout(mapLayoutToProps = defaultMapLayoutToProps, op
         subscribeLayout: PropTypes.func.isRequired,
       }
 
-      componentWillMount() {
+      UNSAFE_componentWillMount() {
         this.state = this.context.getLayoutProviderState()
         this.mergedProps = mergeProps(mapLayoutToProps(this.state), this.props)
         const { subscribeLayout: subscribe } = this.context
@@ -34,7 +34,7 @@ export default function getLayout(mapLayoutToProps = defaultMapLayoutToProps, op
         }
       }
 
-      componentWillReceiveProps(nextProps, nextContext) {
+      UNSAFE_componentWillReceiveProps(nextProps, nextContext) {
         const { getLayoutProviderState: getState } = nextContext
         if (!this.unsubscribe && getState) {
           this.mergedProps = mergeProps(mapLayoutToProps(getState()), nextProps)
@@ -48,7 +48,7 @@ export default function getLayout(mapLayoutToProps = defaultMapLayoutToProps, op
           !shallowEqual(this.state, nextState)
       }
 
-      componentWillUnmount() {
+      UNSAFE_componentWillUnmount() {
         if (this.unsubscribe) {
           this.unsubscribe()
           this.mergedProps = null

@@ -44,7 +44,7 @@ export default class LayoutProvider extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if (shallowEqual(this.props, nextProps)) return
 
     this.setLayoutState(nextProps, this.update)
