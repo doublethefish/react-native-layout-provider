@@ -25,8 +25,8 @@
   "author": "Jhen <developer@jhen.me>",
   "license": "MIT",
   "devDependencies": {
-    "babel-core": "^6.26.3",
-    "babel-eslint": "^6.1.0",
+    "@babel/core": "^7.16.12",
+    "@babel/eslint-parser": "^7.16.5",
     "babel-preset-react-native": "^4.0.1",
     "enzyme": "^3.11.0",
     "eslint": "^8.7.0",
