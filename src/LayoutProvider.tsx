@@ -1,5 +1,4 @@
 import { Component, Children } from 'react'
-import { PropTypes } from 'prop-types'
 import { Dimensions } from 'react-native'
 import shallowEqual from 'shallowequal'
 
@@ -8,33 +7,44 @@ const {
   height: defaultHeight,
 } = Dimensions.get('window')
 
-export default class LayoutProvider extends Component {
-  static propTypes = {
-    label: PropTypes.string,
-    width: PropTypes.number,
-    height: PropTypes.number,
-    portrait: PropTypes.bool,
-    children: PropTypes.element.isRequired,
-  }
+interface LayoutProps {
+    label: string;
+    width: number;
+    height: number;
+    portrait: boolean;
+    children: any;
+}
 
-  static defaultProps = {
-    label: 'Default',
-    width: defaultWidth,
-    height: defaultHeight,
-    portrait: undefined,
-  }
+interface LayoutState {
+  label: string;
+  viewport: { width:number; height:number; };
+  portrait:boolean;
+}
 
-  static childContextTypes = {
-    getLayoutProviderState: PropTypes.func,
-    subscribeLayout: PropTypes.func,
-  }
+type CallbackType = ((layout:LayoutState) => void);
 
-  constructor(props) {
+export default class LayoutProvider extends Component<LayoutProps, LayoutState> {
+  listeners: CallbackType[]
+
+  constructor(props:LayoutProps) {
     super(props)
+    this.listeners = []
     this.update = this.update.bind(this)
     this.getLayoutState = this.getLayoutState.bind(this)
     this.subscribeLayout = this.subscribeLayout.bind(this)
     this.setLayoutState(props)
+
+    const defaultWidth = -1;  // this wasn't defined in the original
+    const defaultHeight = -1;  // this wasn't defined in the original
+
+    this.state ={
+       label: 'Default',
+       viewport: {
+         width: defaultWidth,
+         height: defaultHeight,
+       },
+       portrait: false,
+    }
   }
 
   getChildContext() {
@@ -44,19 +54,19 @@ export default class LayoutProvider extends Component {
     }
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps:LayoutProps) {
     if (shallowEqual(this.props, nextProps)) return
 
     this.setLayoutState(nextProps, this.update)
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate(nextProps:LayoutProps, nextState:LayoutState) {
     return !shallowEqual(this.state, nextState) ||
       this.props.children !== nextProps.children
   }
 
-  setLayoutState({ label, width, height, portrait }, callback) {
-    const state = {
+  setLayoutState({ label, width, height, portrait }:LayoutProps, callback?: ()=>void) {
+    const state:LayoutState = {
       label,
       viewport: { width, height },
       portrait,
@@ -68,7 +78,7 @@ export default class LayoutProvider extends Component {
     }
   }
 
-  getLayoutState() {
+  getLayoutState() :LayoutState {
     const { label, viewport: { width, height }, portrait } = this.state
     return {
       label,
@@ -77,7 +87,7 @@ export default class LayoutProvider extends Component {
     }
   }
 
-  subscribeLayout(listener) {
+  subscribeLayout(listener:CallbackType) {
     if (typeof listener !== 'function') {
       throw new Error('Expected listener to be a function.')
     }
@@ -101,8 +111,6 @@ export default class LayoutProvider extends Component {
       listener(this.getLayoutState())
     )
   }
-
-  listeners = []
 
   render() {
     return Children.only(this.props.children)
