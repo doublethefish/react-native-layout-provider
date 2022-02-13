@@ -11,6 +11,7 @@
     "pretest": "mkdir -p node_modules/react-native && touch node_modules/react-native/index.js",
     "test": "mocha --recursive --require @babel/register -r test/setup test/**/*.spec.js",
     "prepublish": "npm run lint && npm run test",
+    "pretty": "prettier --write $(find . \\( -iname \"*.js\" -o -iname \"*.tsx\" \\) -a -not -path \"./node_modules/*\");",
     "upgrade": "ncu -u"
   },
   "homepage": "https://github.com/jhen0409/react-native-layout-provider",
@@ -52,6 +53,7 @@
   },
   "dependencies": {
     "hoist-non-react-statics": "^3.3.2",
+    "prettier": "^2.5.1",
     "prop-types": "^15.8.1",
     "react": "^17.0.2",
     "shallowequal": "^1.1.0"
