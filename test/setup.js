@@ -1,5 +1,6 @@
-import { configure } from "enzyme";
-import Adapter from "@wojtekmaj/enzyme-adapter-react-17";
+
+import Enzyme from 'enzyme';
+import Adapter from '@wojtekmaj/enzyme-adapter-react-17';
 
 const jsdom = require("jsdom");
 
@@ -11,8 +12,7 @@ global.document = document;
 global.window = document.defaultView;
 global.navigator = global.window.navigator;
 
-require("react-native-mock/mock");
-
+// require("react-native-mock/mock");
 //
-// setup file
-configure({ adapter: new Adapter() });
+
+Enzyme.configure({ adapter: new Adapter() });
