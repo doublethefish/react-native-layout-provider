@@ -1,25 +1,39 @@
 import { Component, createElement } from 'react'
-import { PropTypes } from 'prop-types'
 import shallowEqual from 'shallowequal'
 import hoistStatics from 'hoist-non-react-statics'
 
-const defaultMapLayoutToProps = layout => layout
-const mergeProps = (contextProps, props) => ({
+interface Options {
+  withRef?: boolean;
+}
+
+interface GetLayoutProps {
+}
+
+interface GetLayoutState {
+}
+
+const defaultMapLayoutToProps = (layout:GetLayoutState):GetLayoutProps => layout
+const mergeProps = (contextProps:GetLayoutProps, props:GetLayoutProps) : GetLayoutProps=> ({
   ...contextProps,
   ...props,
 })
 
-const getDisplayName = WrappedComponent =>
+const getDisplayName = (WrappedComponent:any) =>
   WrappedComponent.displayName || WrappedComponent.name || 'Component'
 
-export default function getLayout(mapLayoutToProps = defaultMapLayoutToProps, options = {}) {
-  return WrappedComponent => {
-    class GetLayout extends Component {
+export default function getLayout(mapLayoutToProps = defaultMapLayoutToProps, options:Options = {}) {
+  return (WrappedComponent:any): typeof Component => {
+    class GetLayout extends Component<GetLayoutProps, GetLayoutState> {
       static displayName = `GetLayout(${getDisplayName(WrappedComponent)})`
+      mergedProps: GetLayoutProps | {};
+      props: GetLayoutProps;
+      unsubscribe: (() => void) | null;
 
-      static contextTypes = {
-        getLayoutProviderState: PropTypes.func.isRequired,
-        subscribeLayout: PropTypes.func.isRequired,
+      constructor(props:GetLayoutProps) {
+        super(props);
+        this.mergedProps = {};
+        this.unsubscribe = null;
+        this.props = {};
       }
 
       UNSAFE_componentWillMount() {
@@ -27,14 +41,18 @@ export default function getLayout(mapLayoutToProps = defaultMapLayoutToProps, op
         this.mergedProps = mergeProps(mapLayoutToProps(this.state), this.props)
         const { subscribeLayout: subscribe } = this.context
         if (!this.unsubscribe && subscribe) {
-          this.unsubscribe = subscribe(state => {
+          this.unsubscribe = subscribe((state:GetLayoutState) => {
             this.mergedProps = mergeProps(mapLayoutToProps(state), this.props)
             this.setState(state)
           })
         }
       }
 
-      UNSAFE_componentWillReceiveProps(nextProps, nextContext) {
+      UNSAFE_componentWillReceiveProps(
+          nextProps:GetLayoutProps,
+          nextContext: {
+              getLayoutProviderState: (()=>GetLayoutState)
+            }) {
         const { getLayoutProviderState: getState } = nextContext
         if (!this.unsubscribe && getState) {
           this.mergedProps = mergeProps(mapLayoutToProps(getState()), nextProps)
@@ -43,7 +61,7 @@ export default function getLayout(mapLayoutToProps = defaultMapLayoutToProps, op
         }
       }
 
-      shouldComponentUpdate(nextProps, nextState) {
+      shouldComponentUpdate(nextProps:GetLayoutProps, nextState:GetLayoutState) {
         return !shallowEqual(this.props, nextProps) ||
           !shallowEqual(this.state, nextState)
       }
@@ -51,7 +69,7 @@ export default function getLayout(mapLayoutToProps = defaultMapLayoutToProps, op
       UNSAFE_componentWillUnmount() {
         if (this.unsubscribe) {
           this.unsubscribe()
-          this.mergedProps = null
+          this.mergedProps = {};
         }
       }
 
@@ -63,6 +81,7 @@ export default function getLayout(mapLayoutToProps = defaultMapLayoutToProps, op
       }
     }
 
-    return hoistStatics(GetLayout, WrappedComponent)
+    const ret = hoistStatics<typeof GetLayout, typeof WrappedComponent>(GetLayout, WrappedComponent);
+    return ret;
   }
 }
