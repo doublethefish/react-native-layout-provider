@@ -1,7 +1,8 @@
 import getLayout from './getLayout'
-import defaultLayoutTypes from './defaultLayoutTypes'
+import DefaultLayoutTypes from './defaultLayoutTypes'
 import LayoutProvider from './LayoutProvider'
 
-export { getLayout, defaultLayoutTypes }
+export type {DefaultLayoutTypes};
+export { getLayout }
 
 export default LayoutProvider
