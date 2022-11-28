@@ -13,8 +13,8 @@ interface LayoutProps {
 }
 
 interface LayoutState {
-  label: string;
-  viewport: { width: number; height: number };
+  label?: string;
+  viewport?: { width: number; height: number };
   portrait?: boolean;
 }
 
@@ -57,27 +57,6 @@ export default class LayoutProvider extends Component<
     };
   }
 
-  propsToState(
-    { label, width, height, portrait }: LayoutProps
-    ) {
-    const newState: LayoutState = {};
-    if (label !== undefined) {
-      newState["label"] = label;
-    }
-
-    if (width !== undefined) {
-      newState["viewport"]["width"] = width;
-    }
-
-    if (height !== undefined) {
-      newState["viewport"]["height"] = height;
-    }
-
-    if (portrait !== undefined) {
-      newState["portrait"] = portrait;
-    }
-  }
-
   UNSAFE_componentWillReceiveProps(nextProps: LayoutProps) {
     if (shallowEqual(this.props, nextProps)) return;
 
@@ -103,6 +82,28 @@ export default class LayoutProvider extends Component<
       viewport: { width, height },
       portrait,
     };
+  }
+
+  propsToState(
+    { label, width, height, portrait }: LayoutProps
+    ):LayoutState {
+    const newState: LayoutState = {};
+    if (label !== undefined) {
+      newState["label"] = label;
+    }
+
+    if (width !== undefined) {
+      newState["viewport"]["width"] = width;
+    }
+
+    if (height !== undefined) {
+      newState["viewport"]["height"] = height;
+    }
+
+    if (portrait !== undefined) {
+      newState["portrait"] = portrait;
+    }
+    return newState;
   }
 
   subscribeLayout(listener: CallbackType) {
