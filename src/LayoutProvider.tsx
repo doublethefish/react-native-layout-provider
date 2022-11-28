@@ -5,17 +5,17 @@ import shallowEqual from "shallowequal";
 const { width: defaultWidth, height: defaultHeight } = Dimensions.get("window");
 
 interface LayoutProps {
-  label: string;
-  width: number;
-  height: number;
-  portrait: boolean;
-  children: any;
+  label?: string;
+  width?: number;
+  height?: number;
+  portrait?: boolean;
+  children?: any;
 }
 
 interface LayoutState {
   label: string;
   viewport: { width: number; height: number };
-  portrait: boolean;
+  portrait?: boolean;
 }
 
 type CallbackType = (layout: LayoutState) => void;
@@ -32,18 +32,21 @@ export default class LayoutProvider extends Component<
     this.update = this.update.bind(this);
     this.getLayoutState = this.getLayoutState.bind(this);
     this.subscribeLayout = this.subscribeLayout.bind(this);
-    this.setLayoutState(props);
 
-    const defaultWidth = -1; // this wasn't defined in the original
-    const defaultHeight = -1; // this wasn't defined in the original
-
-    this.state = {
+    const defaultState: LayoutState = {
       label: "Default",
       viewport: {
         width: defaultWidth,
         height: defaultHeight,
       },
-      portrait: false,
+      portrait: undefined,
+    };
+
+    const propsState:LayoutState = this.propsToState(props);
+
+    this.state = {
+      ...defaultState,
+      ...propsState,
     };
   }
 
@@ -54,10 +57,32 @@ export default class LayoutProvider extends Component<
     };
   }
 
+  propsToState(
+    { label, width, height, portrait }: LayoutProps
+    ) {
+    const newState: LayoutState = {};
+    if (label !== undefined) {
+      newState["label"] = label;
+    }
+
+    if (width !== undefined) {
+      newState["viewport"]["width"] = width;
+    }
+
+    if (height !== undefined) {
+      newState["viewport"]["height"] = height;
+    }
+
+    if (portrait !== undefined) {
+      newState["portrait"] = portrait;
+    }
+  }
+
   UNSAFE_componentWillReceiveProps(nextProps: LayoutProps) {
     if (shallowEqual(this.props, nextProps)) return;
 
-    this.setLayoutState(nextProps, this.update);
+    const newState = this.propsToState(nextProps);
+    this.setState(newState);
   }
 
   shouldComponentUpdate(nextProps: LayoutProps, nextState: LayoutState) {
@@ -65,22 +90,6 @@ export default class LayoutProvider extends Component<
       !shallowEqual(this.state, nextState) ||
       this.props.children !== nextProps.children
     );
-  }
-
-  setLayoutState(
-    { label, width, height, portrait }: LayoutProps,
-    callback?: () => void
-  ) {
-    const state: LayoutState = {
-      label,
-      viewport: { width, height },
-      portrait,
-    };
-    if (!this.state) {
-      this.state = state;
-    } else {
-      this.setState(state, callback);
-    }
   }
 
   getLayoutState(): LayoutState {

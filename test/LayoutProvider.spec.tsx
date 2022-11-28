@@ -8,8 +8,8 @@ import spyLifeCycle from "spy-react-component-lifecycle";
 const defaultState = {
   label: "Default",
   viewport: {
-    width: 320,
-    height: 768,
+    width: 750,
+    height: 1334,
   },
   portrait: undefined,
 };
@@ -30,6 +30,7 @@ describe("<LayoutProvider />", () => {
   });
 
   it("should change state with set new props", () => {
+    const spy = jest.spyOn(LayoutProvider.prototype, "UNSAFE_componentWillReceiveProps");
     const wrapper = mount(
       <LayoutProvider>
         <View />
@@ -43,11 +44,11 @@ describe("<LayoutProvider />", () => {
       ...defaultState,
       portrait: true,
     });
-    const { UNSAFE_componentWillReceiveProps } = LayoutProvider.prototype;
-    expect(UNSAFE_componentWillReceiveProps.calledOnce).toBe(true);
+    expect(spy).toBeCalledTimes(1);
   });
 
   it("should not re-render with set the same props", () => {
+    const renderSpy = jest.spyOn(LayoutProvider.prototype, "render");
     const wrapper = mount(
       <LayoutProvider>
         <View />
@@ -56,11 +57,11 @@ describe("<LayoutProvider />", () => {
     expect(wrapper.state()).toEqual(defaultState);
 
     const { render } = LayoutProvider.prototype;
-    expect(render.callCount).toBe(1);
+    expect(renderSpy).toBeCalledTimes(1);
 
     wrapper.setProps({
       portrait: undefined,
     });
-    expect(render.callCount).toBe(1);
+    expect(renderSpy).toBeCalledTimes(1);
   });
 });
